@@ -11,5 +11,6 @@ User'=$Access.IdentityRefrence;'Permissions'=$Access.FileSystemRights;'Inherited
         }
 }
 $Report | Export-Csv -Path "\\computername\drive(E)$\folderperm.csv"
+#openfiles /query /fo table /nh
 
 #-examples# Get-ChildItem -Recurse "network file path" | Get-Acl | Export-Csv "network file path"
