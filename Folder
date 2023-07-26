@@ -1,0 +1,81 @@
+# Get the security descriptor for the file using Get-ACL
+$newACL = Get-ACL D:\exported_ua.cer
+
+# Use the Get-ChildItem to recusively to apply security descriptor using set-acl
+Get-ChildItem -Path "D:\Certificates" -Recurse -Include "*.cer" -Force | Set-Acl -AclObject $newAcl
+
+
+# Get the security descriptor for the folder
+$newACL = Get-ACL -Path 'D:\Certificates\'
+
+# Create the new rule
+$fileSystemRule = New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Administrators","FullControl","Allow")   
+
+# Set the new rule
+$newACL.SetAccessRule($fileSystemRule)
+
+# Apply permission on folder recursively
+Set-Acl -Path 'D:\Expiry_Certificates\' -AclObject $newACL 
+
+--------------------
+
+$Folders = Get-childItem c:\TEMP\
+$InheritanceFlag = [System.Security.AccessControl.InheritanceFlags]::ContainerInherit -bor [System.Security.AccessControl.InheritanceFlags]::ObjectInherit
+$PropagationFlag = [System.Security.AccessControl.PropagationFlags]::InheritOnly
+$objType = [System.Security.AccessControl.AccessControlType]::Allow 
+
+foreach ($TempFolder in $Folders)
+{
+echo "Loop Iteration"
+$Folder = $TempFolder.FullName
+
+$acl = Get-Acl $Folder
+$permission = "domain\user","Modify", $InheritanceFlag, $PropagationFlag, $objType
+$accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule $permission
+
+$acl.SetAccessRule($accessRule)
+Set-Acl $Folder $acl
+}
+
+
+# Get the ACL for an existing folder
+$existingAcl = Get-Acl -Path 'C:\DemoFolder'
+
+# Set the permissions that you want to apply to the folder
+$permissions = $env:username, 'Read,Modify', 'ContainerInherit,ObjectInherit', 'None', 'Allow'
+
+# Create a new FileSystemAccessRule object
+$rule = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList $permissions
+
+# Modify the existing ACL to include the new rule
+$existingAcl.SetAccessRule($rule)
+
+# Apply the modified access rule to the folder
+$existingAcl | Set-Acl -Path 'C:\DemoFolder'
+
+---------------------------------
+
+
+Flag combinations => Propagation results
+=========================================
+No Flags => Target folder.
+ObjectInherit => Target folder, child object (file), grandchild object (file).
+ObjectInherit and NoPropagateInherit => Target folder, child object (file).
+ObjectInherit and InheritOnly => Child object (file), grandchild object (file).
+ObjectInherit, InheritOnly, and NoPropagateInherit => Child object (file).
+ContainerInherit => Target folder, child folder, grandchild folder.
+ContainerInherit, and NoPropagateInherit => Target folder, child folder.
+ContainerInherit, and InheritOnly => Child folder, grandchild folder.
+ContainerInherit, InheritOnly, and NoPropagateInherit => Child folder.
+ContainerInherit, and ObjectInherit => Target folder, child folder, child object (file), grandchild folder, grandchild object (file).
+ContainerInherit, ObjectInherit, and NoPropagateInherit => Target folder, child folder, child object (file).
+ContainerInherit, ObjectInherit, and InheritOnly => Child folder, child object (file), grandchild folder, grandchild object (file).
+ContainerInherit, ObjectInherit, NoPropagateInherit, InheritOnly => Child folder, child object (file).
+
+
+
+---------------------------------------------
+
+
+
+
