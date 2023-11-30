@@ -1,1 +1,23 @@
 
+
+Get a list of all shares and change permission of all shares persmission from everone to authencitaed users
+
+# Get all SMB shares on the server
+$shares = Get-SmbShare
+
+# Iterate through each share and update permissions
+foreach ($share in $shares) {
+    $shareName = $share.Name
+    
+    # Get current share permissions
+    $currentAcl = Get-SmbShareAccess -Name $shareName -AccountName "Everyone"
+
+    # Remove "Everyone" permissions if present
+    if ($currentAcl) {
+        Remove-SmbShareAccess -Name $shareName -AccountName "Everyone"
+    }
+
+    # Grant "Authenticated Users" full access to the share
+    Grant-SmbShareAccess -Name $shareName -AccountName "Authenticated Users" -AccessRight Full
+}
+
