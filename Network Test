@@ -20,4 +20,9 @@ foreach ($port in $ports) {
     }
 }
 
+Network connections on a server exported to CSV
+# Get active network connections
+$activeConnections = Get-NetTCPConnection | Where-Object { $_.State -eq 'Established' }
 
+# Export to CSV
+$activeConnections | Export-Csv -Path "C:\Path\to\output.csv" -NoTypeInformation
