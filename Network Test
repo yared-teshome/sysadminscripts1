@@ -1,0 +1,23 @@
+
+
+# Test network connectivity via differnt ports from Source to Destination
+
+$sourceServer = "SourceServerNameOrIP"
+$destinationServer = "DestinationServerNameOrIP"
+
+# Define an array of ports to test
+$ports = @(80, 443, 3389, 22)  # Add or modify ports as needed
+
+foreach ($port in $ports) {
+    $result = Test-NetConnection -ComputerName $destinationServer -Port $port -InformationLevel Detailed
+    
+    Write-Host "Testing port $port from $sourceServer to $destinationServer..."
+    
+    if ($result.TcpTestSucceeded) {
+        Write-Host "Port $port is open" -ForegroundColor Green
+    } else {
+        Write-Host "Port $port is closed" -ForegroundColor Red
+    }
+}
+
+
