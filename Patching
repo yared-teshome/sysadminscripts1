@@ -1,0 +1,17 @@
+
+
+
+# Get all installed updates
+$updates = Get-WmiObject -Class Win32_QuickFixEngineering
+
+# Format the updates information
+$updatesInfo = $updates | Select-Object -Property Description, InstalledOn, InstalledBy
+
+# Display the list of updates with their state and installation date
+$updatesInfo
+
+
+
+Determine who rebooted a machine.
+
+Get-EventLog -LogName System -InstanceId 1074 | Format-Table TimeGenerated, Message -AutoSize
