@@ -1,0 +1,23 @@
+# Define old and new print server names
+$oldPrintServer = "OldPrintServerName"
+$newPrintServer = "NewPrintServerName"
+
+# Get all printers on the local machine
+$printers = Get-WmiObject -Class Win32_Printer
+
+# Iterate through each printer and check if it's connected to the old print server
+foreach ($printer in $printers) {
+    if ($printer.PortName -like "*$oldPrintServer*") {
+        $printerName = $printer.Name
+        Write-Output "Removing printer: $printerName"
+        
+        # Remove the printer
+        $printer.Delete()
+
+        # Map the printer to the new print server
+        $newPrinterPath = $printer.Name -replace $oldPrintServer, $newPrintServer
+        Add-Printer -ConnectionName $newPrinterPath -ErrorAction SilentlyContinue
+        
+        Write-Output "Printer $printerName mapped to $newPrintServer"
+    }
+}
