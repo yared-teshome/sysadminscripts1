@@ -1,0 +1,43 @@
+# Function to retrieve IP address from a computer name
+Function Get-IPAddress ($computerName) {
+    try {
+        $ping = Test-Connection -ComputerName $computerName -Count 1 -ErrorAction SilentlyContinue
+        if ($ping) {
+            return $ping.IPV4Address.IPAddressToString
+        } else {
+            return "IP not available"
+        }
+    } catch {
+        return "Failed to retrieve IP"
+    }
+}
+
+# Function to retrieve MAC address from a computer name
+Function Get-MACAddress ($computerName) {
+    try {
+        $mac = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -ComputerName $computerName | Where-Object { $_.IPEnabled -eq $true } | Select-Object -ExpandProperty MACAddress
+        if ($mac) {
+            return $mac
+        } else {
+            return "MAC not available"
+        }
+    } catch {
+        return "Failed to retrieve MAC"
+    }
+}
+
+# Retrieve computer names and OU location
+$computers = Get-ADComputer -Filter * -Properties CanonicalName | Select-Object Name, CanonicalName
+
+# Output headers
+"Computer Name`tOU Location`tMAC Address`tIP Address"
+
+foreach ($computer in $computers) {
+    $computerName = $computer.Name
+    $ouLocation = $computer.CanonicalName
+    $macAddress = Get-MACAddress -computerName $computerName
+    $ipAddress = Get-IPAddress -computerName $computerName
+
+    # Output computer information
+    "$computerName`t$ouLocation`t$macAddress`t$ipAddress"
+}
