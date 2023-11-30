@@ -21,3 +21,28 @@ foreach ($printer in $printers) {
         Write-Output "Printer $printerName mapped to $newPrintServer"
     }
 }
+
+
+# Define the list of old print servers and the new print server
+$oldPrintServers = @("OldPrintServer1", "OldPrintServer2", "OldPrintServer3")
+$newPrintServer = "NewPrintServer"
+
+foreach ($oldPrintServer in $oldPrintServers) {
+    try {
+        # Get all printers from the old print server
+        $printers = Get-WmiObject -Class Win32_Printer -ComputerName $oldPrintServer
+
+        foreach ($printer in $printers) {
+            $printerName = $printer.Name
+            $printerPort = $printer.PortName
+
+            # Map the printer to the new print server
+            $newPrinterPath = "\\$newPrintServer\$printerName"
+            Add-Printer -ConnectionName $newPrinterPath -ErrorAction SilentlyContinue
+            
+            Write-Output "Printer $printerName from $oldPrintServer mapped to $newPrintServer"
+        }
+    } catch {
+        Write-Output "Failed to retrieve printers from $oldPrintServer - $_"
+    }
+}
