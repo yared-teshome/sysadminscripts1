@@ -74,4 +74,26 @@ $logonEvents = Get-WinEvent -ComputerName $serverName -LogName Security -FilterX
 $logonEvents | Sort-Object Time | Format-Table -AutoSize
 
 
+$LogonEvents = Get-WinEvent -FilterHashtable @{
+    LogName = 'Security'
+    ID = 4624
+    StartTime = (Get-Date).AddDays(-3)
+} | Where-Object {
+    $_.TimeCreated -ge (Get-Date).AddDays(-3)
+} | Select-Object -Property TimeCreated, @{Name='User';Expression={$_.Properties[5].Value}}
+
+$LogonEvents | Sort-Object -Property TimeCreated -Unique | Format-Table -AutoSize
+
+List of Users logged in past 3 days
+
+$LogonEvents = Get-WinEvent -FilterHashtable @{
+    LogName = 'Security'
+    ID = 4624
+    StartTime = (Get-Date).AddDays(-3)
+} | Where-Object {
+    $_.TimeCreated -ge (Get-Date).AddDays(-3)
+} | Select-Object -Property TimeCreated, @{Name='User';Expression={$_.Properties[5].Value}}
+
+$LogonEvents | Sort-Object -Property TimeCreated -Unique | Format-Table -AutoSize
+
 
