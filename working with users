@@ -40,3 +40,13 @@ $groupMembers = Get-ADGroupMember -Identity $groupName | Select-Object Name, Sam
 
 # Export the list of group members to a CSV file
 $groupMembers | Export-Csv -Path "GroupMembers.csv" -NoTypeInformation
+
+
+Get a list of disabled users in AD
+
+
+# Get a list of disabled users from Active Directory
+$disabledUsers = Get-ADUser -Filter {Enabled -eq $false} -Properties SamAccountName, DistinguishedName
+
+# Output the list of disabled users
+$disabledUsers | Select-Object SamAccountName, DistinguishedName | Format-Table
