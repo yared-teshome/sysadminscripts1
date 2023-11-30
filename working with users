@@ -1,0 +1,42 @@
+
+
+
+# list of users in Active directory
+Import-Module ActiveDirectory
+
+# Get all AD groups
+$groups = Get-ADGroup -Filter * -Properties Members
+
+# Create an empty array to store group and user details
+$groupsWithUsers = @()
+
+# Iterate through each group
+foreach ($group in $groups) {
+    $groupUsers = Get-ADGroupMember -Identity $group | Where-Object { $_.objectClass -eq "user" } | Select-Object @{Name="Group";Expression={$group.Name}}, Name, SamAccountName
+    $groupsWithUsers += $groupUsers
+}
+
+# Export to CSV
+$groupsWithUsers | Export-Csv -Path "AD_Groups_Users.csv" -NoTypeInformation
+
+Get a list of memeber linked to a group
+
+# Replace 'GroupName' with the name of your target group
+$groupName = "GroupName"
+
+# Get members of the specified group
+$groupMembers = Get-ADGroupMember -Identity $groupName | Select-Object Name, SamAccountName, ObjectClass
+
+# Display the list of group members
+$groupMembers
+
+
+
+# Replace 'GroupName' with the name of your target group
+$groupName = "GroupName"
+
+# Get members of the specified group
+$groupMembers = Get-ADGroupMember -Identity $groupName | Select-Object Name, SamAccountName, ObjectClass
+
+# Export the list of group members to a CSV file
+$groupMembers | Export-Csv -Path "GroupMembers.csv" -NoTypeInformation
