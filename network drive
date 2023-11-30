@@ -1,0 +1,18 @@
+# Replace these placeholders with your actual network paths and drive letters
+$driveMappings = @{
+    "Z:" = "\\server\share1"
+    "Y:" = "\\server\share2"
+    # Add more mappings if needed
+}
+
+# Map network drives for the logged-in user
+foreach ($drive in $driveMappings.GetEnumerator()) {
+    $driveLetter = $drive.Key
+    $networkPath = $drive.Value
+
+    # Check if the drive is already mapped
+    if (-not (Get-WmiObject Win32_MappedLogicalDisk | Where-Object {$_.DeviceID -eq $driveLetter})) {
+        # Map the drive
+        New-PSDrive -Name $driveLetter -PSProvider FileSystem -Root $networkPath -Persist
+    }
+}
