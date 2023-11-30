@@ -1,0 +1,30 @@
+# Read server names from CSV file
+$serverList = Import-Csv -Path "Path\to\input.csv"
+
+# Array to store server information
+$serverInfo = @()
+
+# Iterate through each server and retrieve information
+foreach ($server in $serverList) {
+    $serverName = $server.ServerName
+
+    # Perform an operation (e.g., get server details)
+    # For example, retrieving OS information using Get-WmiObject:
+    $osInfo = Get-WmiObject -Class Win32_OperatingSystem -ComputerName $serverName
+
+    # Customize the retrieved information as needed
+    $info = [PSCustomObject]@{
+        ServerName = $serverName
+        OSName = $osInfo.Caption
+        LastBootUpTime = $osInfo.LastBootUpTime
+        # Add more properties as required
+    }
+
+    # Add server information to the array
+    $serverInfo += $info
+}
+
+# Export the server information to a new CSV file
+$serverInfo | Export-Csv -Path "Path\to\output.csv" -NoTypeInformation
+
+
