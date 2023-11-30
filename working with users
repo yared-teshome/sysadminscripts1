@@ -50,3 +50,28 @@ $disabledUsers = Get-ADUser -Filter {Enabled -eq $false} -Properties SamAccountN
 
 # Output the list of disabled users
 $disabledUsers | Select-Object SamAccountName, DistinguishedName | Format-Table
+
+
+# Specify the server name and time range for logon events
+$serverName = "YourServerName"
+$startTime = (Get-Date).AddDays(-7)  # Set the start time (e.g., 7 days ago)
+
+List of users logged on to a server
+
+# Retrieve logon events from the Security log
+$logonEvents = Get-WinEvent -ComputerName $serverName -LogName Security -FilterXPath "*[System[EventID=4624]] and *[EventData[Data[@Name='LogonType']='2' or @Name='LogonType']='10'] and *[EventData[Data[@Name='LogonType'] != '5']]" -StartTime $startTime |
+    Where-Object { $_.Message -match 'Account Name:\s+(\S+)' } |
+    ForEach-Object {
+        $eventTime = $_.TimeCreated
+        $matches = $_.Message -match 'Account Name:\s+(\S+)' | Out-Null
+        [PSCustomObject]@{
+            UserName = $matches[1]
+            Time = $eventTime
+        }
+    }
+
+# Display the list of users and login times
+$logonEvents | Sort-Object Time | Format-Table -AutoSize
+
+
+
