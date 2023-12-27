@@ -1,7 +1,7 @@
 
 
 # Define the target computer and an array of ports to test
-$targetComputer = "192.168.1.100"
+$targetComputer = "192.168.x.x"
 $ports = @(80, 443, 3389, 8080)  # Add more ports as needed
 
 foreach ($port in $ports) {
